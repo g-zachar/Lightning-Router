@@ -22,6 +22,10 @@ export class Router extends lng.Component {
         window.history.back();
     }
 
+    getRoutes() {
+        return this.children.map(ch => ch.ref)
+    }
+
     _init() {
         /* This will clear hash when reloading page */
         history.replaceState(null, null, ' ');
@@ -48,36 +52,43 @@ export class Router extends lng.Component {
         if (!routeChanged) {
             return
         }
-
         console.log('Route changed:', oldRoute.join('/'), '->', route.join('/'), 'data:', Router.data);
         const inactive = this.children.find((ch) => ch.ref === oldRoute[routerIndex]);
-
-        if (inactive) {
-            /* Call old route hook if any */
-            if (inactive._onRouteDeactivated) {
-                inactive._onRouteDeactivated(Router.data);
-            }
-
-            /* Hide currently active page */
-            inactive.setSmooth('alpha', 0);
-        }
-
         const active = this.children.find((ch) => ch.ref === route[routerIndex]);
 
-        if (active) {
-            /* Show activated page */
-            active.setSmooth('alpha', 1);
 
-            /* Call new route hook if any */
-            if (active._onRouteActivated) {
-                active._onRouteActivated(Router.data);
+        const deactivateOldRoute = () => {
+            if (inactive && inactive._onRouteDeactivated) {
+                return inactive._onRouteDeactivated(Router.data);
             }
+            return Promise.resolve();
+        };
 
-            /* Update router state */
-            Router.data = {};
-            this.activeRoute = route[routerIndex];
+        const activateNewRoute = () => {
+            if (active) {
+                Router.data = {};
+                this.activeRoute = route[routerIndex];
+
+                /* Call new route hook if any */
+                if (active._onRouteActivated) {
+                    return active._onRouteActivated(Router.data);
+                }
+            }
+            return Promise.resolve();
+        };
+
+        const updateRouterState = () => {
             this._refocus();
-        }
+            return Promise.resolve();
+        };
+
+        deactivateOldRoute()
+        .then(() => {if (inactive) { inactive.setSmooth('alpha', 0)}})
+        .then(() => {if (active) {active.setSmooth('alpha', 1)}})
+        .then(() => activateNewRoute())
+        .then(() => updateRouterState())
+
+
     }
 }
 

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<head></head>
+<body>
+    <script src='../node_modules/wpe-lightning/dist/lightning.js'></script>
+    <script type='module'>
+        import App from "./sidebar.js";
+        const options = {
+            stage: {w: 900, h: 900, clearColor: 0xff000000}
+        }
+        const app = new App(options);
+        document.body.appendChild(app.stage.getCanvas());
+    </script>
+</body>

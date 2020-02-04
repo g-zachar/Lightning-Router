@@ -7,5 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "g.zachar@metrological.com",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "wpe-lightning": "^1.4.1"
+  }
 }
